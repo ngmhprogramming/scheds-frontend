@@ -32,8 +32,8 @@ jobs:
             cd scheds-frontend
             git pull
             # Stop running container
-            docker compose -f docker-compose-prod.yml -v
+            docker compose -f docker-compose-prod.yml down -v
             # Build new container
             docker compose -f docker-compose-prod.yml build --force-rm --no-cache --compress
             # Run a new container from a new image
-            docker compose up -d
+            docker compose -f docker-compose-prod.yml up -d
