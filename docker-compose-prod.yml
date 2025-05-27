@@ -1,0 +1,11 @@
+services:
+  scheds-frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_APP_BACKEND_ADDRESS=https://api.scheds.ngmunhin.com/
+    container_name: scheds-frontend-prod
+    restart: unless-stopped
+    ports:
+      - 3003:3003
