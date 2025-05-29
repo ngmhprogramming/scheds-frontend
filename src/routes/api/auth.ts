@@ -50,6 +50,9 @@ export const logout = async () => {
 		})
 		.then(res => {
 			return res.data;
+		})
+		.catch(() => {
+			return { error: "API is down!"}
 		});
 	return res;
 }
