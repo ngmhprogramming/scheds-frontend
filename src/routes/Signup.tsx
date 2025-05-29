@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import * as API from './api/auth';
 
 const Signup = () => {
+	const navigate = useNavigate();
+
 	const [form, setForm] = useState({
 		username: "",
 		email: "",
@@ -20,7 +23,8 @@ const Signup = () => {
 		if ("error" in res) {
 			console.log(res.error);
 		} else {
-			console.log(res.data);
+			localStorage.setItem("username", res.data);
+			navigate("/");
 		}
 	};
 

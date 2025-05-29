@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import { useEffect } from 'react';
 
 const Root = () => {
+	useEffect(() => {
+		const username = localStorage.getItem("username");
+		console.log("Username", username);
+	});
+
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
