@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
+import './index.css'
+
 import Root from './routes/Root';
 import Login from './routes/Login';
 import Signup from './routes/Signup';
