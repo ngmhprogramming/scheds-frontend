@@ -11,4 +11,4 @@ services:
       - ./:/app
       - /app/node_modules
     environment:
-      - VITE_APP_BACKEND_ADDRESS=https://api.scheds.ngmunhin.com/
+      - VITE_APP_BACKEND_ADDRESS=http://localhost:3000/
