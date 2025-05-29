@@ -27,7 +27,7 @@ const Signup = () => {
 			setError(res.error);
 		} else {
 			localStorage.setItem("username", res.data);
-			navigate("/");
+			navigate("/", { state: { success: "Successful signup!" } });
 		}
 	};
 
