@@ -1,8 +1,10 @@
 import React from 'react';
+import Navbar from './components/Navbar';
 
 const Root = () => {
 	return (
 		<>
+			<Navbar />
 			<h1 className="text-3xl">Root</h1>
 			<div className="card bg-base-100 w-96 shadow-sm">
 				<figure>
