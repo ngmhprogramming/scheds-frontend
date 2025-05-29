@@ -7,7 +7,7 @@ const Navbar = () => {
 	const handleLogout = async () => {
 		await logout();
 		localStorage.removeItem("username");
-		navigate("/");
+		navigate("/", { state: { success: "Successful logout!" } });
 	};
 
 	return (
