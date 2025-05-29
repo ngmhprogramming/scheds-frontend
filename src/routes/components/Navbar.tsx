@@ -1,4 +1,15 @@
+import { useNavigate } from "react-router-dom";
+import { logout } from "../api/auth";
+
 const Navbar = () => {
+	const navigate = useNavigate();
+
+	const handleLogout = async () => {
+		await logout();
+		localStorage.removeItem("username");
+		navigate("/");
+	};
+
 	return (
 		<nav>
 			<div className="navbar bg-base-100 shadow-md px-4">
@@ -51,7 +62,7 @@ const Navbar = () => {
 						>
 							<li><a>Profile</a></li>
 							<li><a>Settings</a></li>
-							<li><a>Logout</a></li>
+							<li><a onClick={handleLogout}>Logout</a></li>
 						</ul>
 					</div>
 				</div>

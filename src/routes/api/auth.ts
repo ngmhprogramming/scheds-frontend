@@ -23,3 +23,14 @@ export const signup = async (data: SignupData) => {
 		});
 	return res;
 };
+
+export const logout = async () => {
+	const backendAddress = import.meta.env.VITE_APP_BACKEND_ADDRESS;
+	const res = await axios.post(backendAddress + "logout", {}, {
+			withCredentials: true
+		})
+		.then(res => {
+			return res.data;
+		});
+	return res;
+}
