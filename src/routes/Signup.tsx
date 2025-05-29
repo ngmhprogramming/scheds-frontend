@@ -14,9 +14,14 @@ const Signup = () => {
 		setForm({ ...form, [event.target.name]: event.target.value, });
 	};
 
-	const handleSubmit = (event: React.FormEvent) => {
+	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
-		API.signup(form);
+		const res = await API.signup(form);
+		if ("error" in res) {
+			console.log(res.error);
+		} else {
+			console.log(res.data);
+		}
 	};
 
 	return (
@@ -34,6 +39,7 @@ const Signup = () => {
 							<span className="label-text">Username</span>
 						</label>
 						<input
+							id="username"
 							name="username"
 							type="text"
 							className="input input-bordered"
@@ -48,6 +54,7 @@ const Signup = () => {
 							<span className="label-text">Email</span>
 						</label>
 						<input
+							id="email"
 							name="email"
 							type="email"
 							className="input input-bordered"
@@ -62,6 +69,7 @@ const Signup = () => {
 							<span className="label-text">Password</span>
 						</label>
 						<input
+							id="password"
 							name="password"
 							type="password"
 							className="input input-bordered"
