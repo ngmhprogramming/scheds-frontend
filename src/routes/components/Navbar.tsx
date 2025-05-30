@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
+import { removeLocal } from "../storage";
 
 const Navbar = () => {
 	const navigate = useNavigate();
 
 	const handleLogout = async () => {
 		await logout();
-		localStorage.removeItem("username");
+		removeLocal("profileData");
 		navigate("/", { state: { success: "Successful logout!" } });
 	};
 
