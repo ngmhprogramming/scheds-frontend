@@ -24,6 +24,7 @@ const Navbar = () => {
 	const handleLogout = async () => {
 		await logout();
 		removeLocal("profileData");
+		setProfileData(null);
 		navigate("/", { state: { success: "Successful logout!" } });
 	};
 
