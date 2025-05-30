@@ -1,12 +1,30 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../api/auth";
+import { getLocal, removeLocal } from "../storage";
+
+interface ProfileData {
+	user_id: string,
+	created_at: string,
+	username: string,
+	pfp_url: string,
+	bio: string,
+	full_name: string,
+}
 
 const Navbar = () => {
 	const navigate = useNavigate();
 
+	const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+	useEffect(() => {
+		setProfileData(getLocal("profileData"));
+	}, []);
+
 	const handleLogout = async () => {
 		await logout();
-		localStorage.removeItem("username");
+		removeLocal("profileData");
+		setProfileData(null);
 		navigate("/", { state: { success: "Successful logout!" } });
 	};
 
@@ -18,54 +36,64 @@ const Navbar = () => {
 				</div>
 
 				{/* Desktop menu */}
-				{/* TODO: Conditional render based on login status */}
 				<div className="hidden md:flex gap-2">
 					<a className="btn btn-ghost" href="/">Home</a>
-					<a className="btn btn-ghost" href="/login">Login</a>
-					<a className="btn btn-ghost" href="/signup">Sign Up</a>
+					{!profileData && (
+						<>
+							<a className="btn btn-ghost" href="/login">Login</a>
+							<a className="btn btn-ghost" href="/signup">Sign Up</a>
+						</>
+					)}
 				</div>
 
 				{/* Special items */}
-				{/* TODO: Conditional render based on login status */}
-				<div className="flex items-center gap-2 ml-2">
-					{/* Notifications */}
-					<button className="btn btn-ghost btn-circle">
-						<div className="indicator">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								className="h-6 w-6"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 9v5.159c0 .538-.214 1.055-.595 1.436L6 17h5m4 0v1a3 3 0 11-6 0v-1m6 0H9" />
-							</svg>
-							{/* Unread notifications icon */}
-							{/* TODO: Conditional render based on notification status */}
-							<span className="badge badge-xs badge-primary indicator-item"></span>
-						</div>
-					</button>
-
-					{/* Profile picture dropdown */}
-					<div className="dropdown dropdown-end">
-						<label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-							<div className="w-10 rounded-full">
-								<img
-									alt="User avatar"
-									src="https://i.pravatar.cc/300"
-								/>
+				{profileData && (
+					<div className="flex items-center gap-2 ml-2">
+						{/* Notifications */}
+						<button className="btn btn-ghost btn-circle">
+							<div className="indicator">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									className="h-6 w-6"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 9v5.159c0 .538-.214 1.055-.595 1.436L6 17h5m4 0v1a3 3 0 11-6 0v-1m6 0H9" />
+								</svg>
+								{/* Unread notifications icon */}
+								{/* TODO: Conditional render based on notification status */}
+								<span className="badge badge-xs badge-primary indicator-item"></span>
 							</div>
-						</label>
-						<ul
-							tabIndex={0}
-							className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-						>
-							<li><a>Profile</a></li>
-							<li><a>Settings</a></li>
-							<li><a onClick={handleLogout}>Logout</a></li>
-						</ul>
+						</button>
+
+						{/* Profile picture dropdown */}
+						<div className="dropdown dropdown-end">
+							<label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+								<div className="w-10 rounded-full">
+									{/* TODO: Provide fallback image if there is an error */}
+									<img
+										alt="User avatar"
+										src={profileData.pfp_url}
+									/>
+								</div>
+							</label>
+							<ul
+								tabIndex={0}
+								className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+							>
+								<li>
+									<span className="text-sm font-medium hidden md:inline">
+										{profileData.username}
+									</span>
+								</li>
+								<li><a>Profile</a></li>
+								<li><a>Settings</a></li>
+								<li><a onClick={handleLogout}>Logout</a></li>
+							</ul>
+						</div>
 					</div>
-				</div>
+				)}
 
 				{/* Mobile menu */}
 				<div className="dropdown dropdown-end md:hidden ml-2">
@@ -85,8 +113,12 @@ const Navbar = () => {
 						className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
 					>
 						<li><a href="/">Home</a></li>
-						<li><a href="/login">Login</a></li>
-						<li><a href="/signup">Sign Up</a></li>
+						{!profileData && (
+							<>
+								<li><a href="/login">Login</a></li>
+								<li><a href="/signup">Sign Up</a></li>
+							</>
+						)}
 					</ul>
 				</div>
 			</div>

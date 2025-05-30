@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import * as API from './api/auth';
+import { setLocal } from './storage';
 
 const Signup = () => {
 	const navigate = useNavigate();
@@ -26,7 +27,7 @@ const Signup = () => {
 		if ("error" in res) {
 			setError(res.error);
 		} else {
-			localStorage.setItem("username", res.data);
+			setLocal("profileData", res.data);
 			navigate("/", { state: { success: "Successful signup!" } });
 		}
 	};

@@ -16,11 +16,6 @@ const Root = () => {
 		}
 	}, [location.state])
 
-	useEffect(() => {
-		const username = localStorage.getItem("username");
-		console.log("Username", username);
-	}, []);
-
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
