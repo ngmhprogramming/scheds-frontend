@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { useEffect } from 'react';
+import { getLocal } from './storage';
 
 const Root = () => {
 	const location = useLocation();
@@ -17,8 +18,8 @@ const Root = () => {
 	}, [location.state])
 
 	useEffect(() => {
-		const username = localStorage.getItem("username");
-		console.log("Username", username);
+		const profileData = getLocal("profileData");
+		console.log(profileData);
 	}, []);
 
 	return (
