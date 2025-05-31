@@ -7,6 +7,7 @@ import './index.css'
 import Root from './routes/Root';
 import Login from './routes/Login';
 import Signup from './routes/Signup';
+import Schedule from './routes/Schedule';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
     path: "/signup",
     element: <Signup />,
   },
+  {
+    path: "/schedule",
+    element: <Schedule />,
+  }
 ]);
 
 createRoot(document.getElementById('root')!).render(
