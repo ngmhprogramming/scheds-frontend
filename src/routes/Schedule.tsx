@@ -1,12 +1,21 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import * as API from './api/auth';
-import { setLocal } from './storage';
+import API from './api';
 
 const Schedule = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
+
+	const [success, setSuccess] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (location.state && (location.state as any).success) {
+			setSuccess((location.state).success);
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state])
 
 	const [form, setForm] = useState({
 		title: "",
@@ -41,23 +50,36 @@ const Schedule = () => {
 			return;
 		}
 
-		if (formData.description.length > 5) {
-			setError("Description can be maximum 5 characters.");
+		if (formData.description.length > 200) {
+			setError("Description can be maximum 200 characters.");
 			return;
 		}
 
-		// const res = await API.login(form);
-		// if ("error" in res) {
-		// 	setError(res.error);
-		// } else {
-		// 	setLocal("profileData", res.data);
-		// 	navigate("/", { state: { success: "Successful login!" } });
-		// }
+		console.log(formData);
+
+		const res = await API.createEvent(form);
+		console.log(res);
+		if ("error" in res) {
+			setError(res.error);
+		} else {
+			// setLocal("profileData", res.data);
+			navigate("/schedule", { state: { success: "Successful event creation!" } });
+		}
 	};
 
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
+			{success && (
+				<div className="bg-base-200 p-4 rounded-lg shadow w-full">
+					<div role="alert" className="alert alert-success">
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+						<span>{success}</span>
+					</div>
+				</div>
+			)}
 			<form onSubmit={handleSubmit} className="flex-grow bg-base-200 p-6">
 				<div className="max-w-4xl mx-auto">
 					<h1 className="text-3xl font-bold mb-6">My Schedule</h1>
