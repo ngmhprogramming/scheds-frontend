@@ -6,11 +6,11 @@ import API from './api';
 
 // calendar imports
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import format from 'date-fns/format';
-import parse from 'date-fns/parse';
-import startOfWeek from 'date-fns/startOfWeek';
-import getDay from 'date-fns/getDay';
-import enGB from 'date-fns/locale/en-GB';
+import { format } from 'date-fns/format';
+import { parse } from 'date-fns/parse';
+import { startOfWeek } from 'date-fns/startOfWeek';
+import { getDay } from 'date-fns/getDay';
+import { enGB } from 'date-fns/locale/en-GB';
 import { parseISO } from "date-fns";
 
 const locales = {
@@ -25,15 +25,15 @@ const localiser = dateFnsLocalizer({
 	locales,
 });
 
-type Event = {
-	id: number,
-	created_at: string,
-	user: string,
-	title: string,
-	start: string,
-	end: string,
-	description: string,
-};
+// type Event = {
+// 	id: number,
+// 	created_at: string,
+// 	user: string,
+// 	title: string,
+// 	start: string,
+// 	end: string,
+// 	description: string,
+// };
 
 interface CalendarEvent {
 	title: string;
