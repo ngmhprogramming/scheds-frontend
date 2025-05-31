@@ -120,7 +120,7 @@ const Navbar = () => {
 						<li><a href="/">Home</a></li>
 						{profileData && (
 							<>
-								<a className="btn btn-ghost" href="/schedule">Schedule</a>
+								<li><a href="/schedule">Schedule</a></li>
 							</>
 						)}
 						{!profileData && (

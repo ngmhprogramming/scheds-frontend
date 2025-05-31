@@ -1,2 +1,16 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* calendar styling */
+/* .rbc-calendar-wrapper {
+	all: revert;
+}
+
+.rbc-calendar-wrapper * {
+	all: unset;
+	all: revert;
+	box-sizing: border-box;
+} */
+
+@import "react-big-calendar/lib/css/react-big-calendar.css";
+/* @import "react-big-calendar/lib/sass/styles"; */
