@@ -4,18 +4,17 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import API from './api';
 
+type Event = {
+	id: number,
+	title: string;
+	start: string;
+	end: string;
+	description: string;
+}
+
 const Schedule = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-
-	const [success, setSuccess] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (location.state && (location.state as any).success) {
-			setSuccess((location.state).success);
-			window.history.replaceState({}, document.title);
-		}
-	}, [location.state])
 
 	const [form, setForm] = useState({
 		title: "",
@@ -23,7 +22,29 @@ const Schedule = () => {
 		end: "",
 		description: "",
 	});
+	const [events, setEvents] = useState<Event[]>([]);
+	const [success, setSuccess] = useState<string | null>(null);
 	const [error, setError] = useState("");
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		if (location.state && (location.state as any).success) {
+			setSuccess((location.state).success);
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state]);
+
+	const fetchEvents = async () => {
+		setLoading(true);
+		setError("");
+		const eventData = await API.getEvents();
+		setEvents(eventData);
+		setLoading(false);
+	};
+
+	useEffect(() => {
+		fetchEvents();
+	}, []);
 
 	const localToUTC = (localDateString: string) => {
 		const localDate = new Date(localDateString);
@@ -86,7 +107,22 @@ const Schedule = () => {
 
 					<div className="bg-base-100 shadow-md rounded-lg p-6 mb-8">
 						<div className="h-96 flex items-center justify-center text-gray-500 italic">
-							Calendar Placeholder
+							{loading && (
+								<span className="loading loading-bars loading-xl"></span>
+							)}
+							{!loading && (
+								<ul>
+									{events.length === 0 && <li>No events found.</li>}
+									{events.map((event) => (
+										<li key={event.id}>
+											<strong>{event.title}</strong> <br />
+											From: {new Date(event.start).toLocaleString()} <br />
+											To: {new Date(event.end).toLocaleString()} <br />
+											{event.description && <em>{event.description}</em>}
+										</li>
+									))}
+								</ul>
+							)}
 						</div>
 					</div>
 
