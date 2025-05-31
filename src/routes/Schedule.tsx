@@ -60,6 +60,13 @@ const Schedule = () => {
 	useEffect(() => {
 		if (location.state && (location.state as any).success) {
 			setSuccess((location.state).success);
+			setForm({
+				title: "",
+				start: "",
+				end: "",
+				description: "",
+			});
+			fetchEvents();
 			window.history.replaceState({}, document.title);
 		}
 	}, [location.state]);
@@ -77,8 +84,6 @@ const Schedule = () => {
 				end: parseISO(event.end),
 				description: event.description,
 			}));
-			console.log(res.data);
-			console.log(parsed);
 			setEvents(parsed);
 			setLoading(false);
 		}
