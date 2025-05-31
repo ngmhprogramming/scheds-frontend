@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import * as API from './api/auth';
+import API from './api';
 import { setLocal } from './storage';
 
 const Login = () => {
