@@ -6,10 +6,12 @@ import API from './api';
 
 type Event = {
 	id: number,
-	title: string;
-	start: string;
-	end: string;
-	description: string;
+	created_at: string,
+	user: string,
+	title: string,
+	start: string,
+	end: string,
+	description: string,
 }
 
 const Schedule = () => {
@@ -37,9 +39,14 @@ const Schedule = () => {
 	const fetchEvents = async () => {
 		setLoading(true);
 		setError("");
-		const eventData = await API.getEvents();
-		setEvents(eventData);
-		setLoading(false);
+		const res = await API.getEvents();
+		if ("error" in res) {
+			setError(res.error);
+		} else {
+			console.log(res.data);
+			setEvents(res.data);
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {
