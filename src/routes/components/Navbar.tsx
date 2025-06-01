@@ -38,6 +38,11 @@ const Navbar = () => {
 				{/* Desktop menu */}
 				<div className="hidden md:flex gap-2">
 					<a className="btn btn-ghost" href="/">Home</a>
+					{profileData && (
+						<>
+							<a className="btn btn-ghost" href="/schedule">Schedule</a>
+						</>
+					)}
 					{!profileData && (
 						<>
 							<a className="btn btn-ghost" href="/login">Login</a>
@@ -113,6 +118,11 @@ const Navbar = () => {
 						className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
 					>
 						<li><a href="/">Home</a></li>
+						{profileData && (
+							<>
+								<li><a href="/schedule">Schedule</a></li>
+							</>
+						)}
 						{!profileData && (
 							<>
 								<li><a href="/login">Login</a></li>
