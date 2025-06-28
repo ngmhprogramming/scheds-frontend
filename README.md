@@ -1,3 +1,18 @@
+# scheds-frontend
+
+This repository contains the code for the frontend of scheds
+
+# Deployment
+- Clone the GitHub repository
+- Stop running container
+`docker compose -f docker-compose-prod.yml down -v`
+- Build new container
+`docker compose -f docker-compose-prod.yml build --force-rm --no-cache --compress`
+- Run a new container from a new image
+`docker compose -f docker-compose-prod.yml up -d`
+- (Use the appropriate `docker-compose-prod.yml` or `docker-compose-dev.yml`)
+- View at `http://localhost:3003/` (assuming default dockerfile)
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
