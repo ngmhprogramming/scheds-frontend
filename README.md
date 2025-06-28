@@ -13,6 +13,12 @@ This repository contains the code for the frontend of scheds
 - (Use the appropriate `docker-compose-prod.yml` or `docker-compose-dev.yml`)
 - View at `http://localhost:3003/` (assuming default dockerfile)
 
+# Unit Testing
+We use **Vitest** for unit testing.
+- `npm run test` runs the unit tests
+- `npm run test:watch` runs the unit tests with watcher
+- `npm run coverage` generates the coverage report
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
