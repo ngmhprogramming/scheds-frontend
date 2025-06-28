@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import Root from '../routes/Root';
-import Signup from '../routes/Signup';
 
 describe('Root component', () => {
 	it('renders the main heading and subtext', () => {
