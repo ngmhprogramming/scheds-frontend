@@ -41,6 +41,7 @@ const Navbar = () => {
 					{profileData && (
 						<>
 							<a className="btn btn-ghost" href="/schedule">Schedule</a>
+							<a className="btn btn-ghost" href="/groups">Groups</a>
 						</>
 					)}
 					{!profileData && (

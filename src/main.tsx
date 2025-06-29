@@ -8,6 +8,7 @@ import Root from './routes/Root';
 import Login from './routes/Login';
 import Signup from './routes/Signup';
 import Schedule from './routes/Schedule';
+import Groups from './routes/Groups';
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
   {
     path: "/schedule",
     element: <Schedule />,
+  },
+  {
+    path: "/groups",
+    element: <Groups />,
   }
 ]);
 
