@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../api/auth";
+import API from '../api';
 import { getLocal, removeLocal } from "../storage";
 
 interface ProfileData {
@@ -22,7 +22,7 @@ const Navbar = () => {
 	}, []);
 
 	const handleLogout = async () => {
-		await logout();
+		await API.logout();
 		removeLocal("profileData");
 		setProfileData(null);
 		navigate("/", { state: { success: "Successful logout!" } });
