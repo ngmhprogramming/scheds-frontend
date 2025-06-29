@@ -80,8 +80,8 @@ const Schedule = () => {
 		} else {
 			const parsed = res.data.map((event: any) => ({
 				title: event.title,
-				start: parseISO(event.start),
-				end: parseISO(event.end),
+				start: new Date(event.start),
+				end: new Date(event.end),
 				description: event.description,
 			}));
 			setEvents(parsed);
@@ -107,9 +107,6 @@ const Schedule = () => {
 		setError("");
 
 		const formData = form;
-		formData.start = localToUTC(form.start);
-		formData.end = localToUTC(form.end);
-
 		const startDatetime = new Date(formData.start);
 		const endDatetime = new Date(formData.end);
 
@@ -122,8 +119,6 @@ const Schedule = () => {
 			setError("Description can be maximum 200 characters.");
 			return;
 		}
-
-		console.log(formData);
 
 		const res = await API.createEvent(form);
 		console.log(res);
