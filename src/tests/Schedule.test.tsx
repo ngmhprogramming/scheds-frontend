@@ -96,8 +96,8 @@ describe('Schedule Page', () => {
 		await waitFor(() => {
 			expect(mockedCreateEvent).toHaveBeenCalledWith({
 				title: "Test Event",
-				start: "2025-06-30T09:00:00.000Z",
-				end: "2025-06-30T10:00:00.000Z",
+				start: "2025-06-30T09:00",
+				end: "2025-06-30T10:00",
 				description: "Testing event creation",
 			});
 		});
