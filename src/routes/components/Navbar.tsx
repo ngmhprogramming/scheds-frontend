@@ -93,7 +93,7 @@ const Navbar = () => {
 										{profileData.username}
 									</span>
 								</li>
-								<li><a>Profile</a></li>
+								<li><a onClick={() => navigate("/profile")}>Profile</a></li>
 								<li><a>Settings</a></li>
 								<li><a onClick={handleLogout}>Logout</a></li>
 							</ul>
