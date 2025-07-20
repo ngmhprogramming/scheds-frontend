@@ -3,16 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import API from './api';
-import { getLocal, removeLocal } from "./storage";
-
-// calendar imports
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format } from 'date-fns/format';
-import { parse } from 'date-fns/parse';
-import { startOfWeek } from 'date-fns/startOfWeek';
-import { getDay } from 'date-fns/getDay';
-import { enGB } from 'date-fns/locale/en-GB';
-import { parseISO } from "date-fns";
+import { getLocal, setLocal } from "./storage";
 
 interface ProfileData {
 	user_id: string,
@@ -23,36 +14,7 @@ interface ProfileData {
 	full_name: string,
 }
 
-const locales = {
-	"en-GB": enGB,
-};
-
-const localiser = dateFnsLocalizer({
-	format,
-	parse,
-	startOfWeek,
-	getDay,
-	locales,
-});
-
-// type Event = {
-// 	id: number,
-// 	created_at: string,
-// 	user: string,
-// 	title: string,
-// 	start: string,
-// 	end: string,
-// 	description: string,
-// };
-
-interface CalendarEvent {
-	title: string;
-	start: Date;
-	end: Date;
-	description: string;
-};
-
-const Schedule = () => {
+const Profile = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	
@@ -70,53 +32,9 @@ const Schedule = () => {
 		password: "",
 		bio: "",
 	});
-	const [events, setEvents] = useState<CalendarEvent[]>([]);
 	const [success, setSuccess] = useState<string | null>(null);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-
-	useEffect(() => {
-		if (location.state && (location.state as any).success) {
-			setSuccess((location.state).success);
-			setForm({
-				username: profileData ? profileData.username : "",
-				full_name: profileData ? profileData.full_name : "",
-				pfp_url: profileData ? profileData.pfp_url : "",
-				email: "",
-				password: "",
-				bio: profileData ? profileData.bio : "",
-			});
-			fetchEvents();
-			window.history.replaceState({}, document.title);
-		}
-	}, [location.state]);
-
-	const fetchEvents = async () => {
-		setLoading(true);
-		setError("");
-		const res = await API.getEvents();
-		if ("error" in res) {
-			setError(res.error);
-		} else {
-			const parsed = res.data.map((event: any) => ({
-				title: event.title,
-				start: new Date(event.start),
-				end: new Date(event.end),
-				description: event.description,
-			}));
-			setEvents(parsed);
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		fetchEvents();
-	}, []);
-
-	const localToUTC = (localDateString: string) => {
-		const localDate = new Date(localDateString);
-		return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString();
-	};
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 		setForm({ ...form, [event.target.name]: event.target.value, });
@@ -126,14 +44,18 @@ const Schedule = () => {
 		event.preventDefault();
 		setError("");
 
-		const formData = form;
-
 		const res = await API.profileUpdate(form);
-		console.log(res);
 		if ("error" in res) {
 			setError(res.error);
 		} else {
-			navigate("/schedule", { state: { success: "Successful event creation!" } });
+			const updatedProfile = await API.getProfile();
+			if ("error" in updatedProfile) {
+				setError(updatedProfile.error);
+			} else {
+				setLocal("profileData", updatedProfile.data);
+			}
+			setProfileData(getLocal("profileData"));
+			navigate("/profile", { state: { success: "Successful event creation!" } });
 		}
 	};
 
@@ -207,7 +129,6 @@ const Schedule = () => {
 												className="input input-bordered w-full"
 												value={form.email}
 												onChange={handleChange}
-												required
 											/>
 										</div>
 
@@ -222,7 +143,6 @@ const Schedule = () => {
 												className="input input-bordered w-full"
 												value={form.password}
 												onChange={handleChange}
-												required
 											/>
 										</div>
 
@@ -240,7 +160,16 @@ const Schedule = () => {
 											/>
 										</div>
 
-										<button type="submit" className="btn btn-primary">Add Event</button>
+										<button type="submit" className="btn btn-primary">Update Profile</button>
+
+										{error && (
+											<div role="alert" className="alert alert-error">
+												<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+												</svg>
+												<span>{error}</span>
+											</div>
+										)}
 
 										{error && (
 											<div role="alert" className="alert alert-error">
@@ -262,4 +191,4 @@ const Schedule = () => {
 	);
 }
 
-export default Schedule;
+export default Profile;

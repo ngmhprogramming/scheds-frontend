@@ -24,3 +24,16 @@ export const profileUpdate = async (data: newProfileData) => {
 		});
 	return res;
 };
+
+export const getProfile = async () => {
+	const backendAddress = import.meta.env.VITE_APP_BACKEND_ADDRESS;
+	const res = await axios.get(backendAddress + "profile/get", {})
+		.then(res => {
+			return res.data;
+		})
+		.catch(() => {
+			console.log(res.error);
+			return { error: "API is down!"}
+		});
+	return res;
+};
