@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import API from './api';
@@ -7,12 +7,21 @@ import { setLocal } from './storage';
 
 const Login = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	const [form, setForm] = useState({
 		email: "",
 		password: "",
 	});
+	const [loginUpdate, setLoginUpdate] = useState<string | null>(null);
 	const [error, setError] = useState("");
+
+	useEffect(() => {
+		if (location.state && (location.state as any).loginUpdate) {
+			setLoginUpdate((location.state).loginUpdate);
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state]);
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setForm({ ...form, [event.target.name]: event.target.value, });
@@ -34,6 +43,16 @@ const Login = () => {
 	return (
 		<div className="flex flex-col min-h-screen">
 			<Navbar />
+			{loginUpdate && (
+				<div className="bg-base-200 p-4 rounded-lg shadow w-full">
+					<div role="alert" className="alert alert-success">
+						<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+						</svg>
+						<span>{loginUpdate}</span>
+					</div>
+				</div>
+			)}
 			<form
 				onSubmit={handleSubmit}
 				className="card shadow-xl p-6 space-y-4 flex-grow flex items-center justify-center bg-base-200"

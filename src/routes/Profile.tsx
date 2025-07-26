@@ -35,6 +35,12 @@ const Profile = () => {
 		bio: "",
 	});
 	const [success, setSuccess] = useState<string | null>(null);
+	useEffect(() => {
+		if (location.state && (location.state as any).success) {
+			setSuccess((location.state).success);
+			window.history.replaceState({}, document.title);
+		}
+	}, [location.state]);
 	const [profileError, setProfileError] = useState("");
 	const [loginError, setLoginError] = useState("");
 
@@ -46,6 +52,7 @@ const Profile = () => {
 	};
 
 	const handleLoginSubmit = async (event: React.FormEvent) => {
+		console.log("submitting login update");
 		event.preventDefault();
 		setLoginError("");
 
@@ -53,17 +60,12 @@ const Profile = () => {
 		console.log("submitting");
 		if ("error" in res) {
 			setLoginError(res.error);
+			console.log("earlier error");
 		} else {
-			const updatedProfile = await API.getProfile();
-			if ("error" in updatedProfile) {
-				setLoginError(updatedProfile.error);
-			} else {
-				console.log("updating profileData");
-				removeLocal("profileData");
-				setLocal("profileData", updatedProfile.data);
-			}
-			setProfileData(getLocal("profileData"));
-			navigate("/profile", { state: { success: "Successful login update!" } });
+			await API.logout();
+			removeLocal("profileData");
+			setProfileData(null);
+			navigate("/login", { state: { loginUpdate: "Successful login update! Please check your email for a verification email, then log in again." } });
 		}
 	};
 
@@ -72,21 +74,35 @@ const Profile = () => {
 		setProfileError("");
 
 		const res = await API.profileUpdate(profileForm);
-		console.log("submitting");
+		// console.log("submitting");
+		// if ("error" in res) {
+		// 	setProfileError(res.error);
+		// } else {
+		// 	const updatedProfile = await API.getProfile();
+		// 	if ("error" in updatedProfile) {
+		// 		setProfileError(updatedProfile.error);
+		// 	} else {
+		// 		console.log("updating profileData");
+		// 		removeLocal("profileData");
+		// 		setLocal("profileData", updatedProfile.data);
+		// 		setProfileData(getLocal("profileData"));
+		// 	}
+		// }
 		if ("error" in res) {
 			setProfileError(res.error);
-		} else {
-			const updatedProfile = await API.getProfile();
-			if ("error" in updatedProfile) {
-				setProfileError(updatedProfile.error);
-			} else {
-				console.log("updating profileData");
-				removeLocal("profileData");
-				setLocal("profileData", updatedProfile.data);
-			}
-			setProfileData(getLocal("profileData"));
-			navigate("/profile", { state: { success: "Successful profile update!" } });
+			return;
 		}
+		var newProfile = await getLocal<ProfileData>("profileData");
+		if (newProfile == null) {
+			setProfileError("Profile data not found, please log in again.");
+			return;
+		}
+		newProfile.username = profileForm.username == "" ? newProfile.username : profileForm.username;
+		newProfile.full_name = profileForm.full_name == "" ? newProfile.full_name : profileForm.full_name;
+		newProfile.pfp_url = profileForm.pfp_url == "" ? newProfile.pfp_url : profileForm.pfp_url;
+		newProfile.bio = profileForm.bio == "" ? newProfile.bio : profileForm.bio;
+		setLocal("profileData", newProfile);
+		navigate("/profile", { state: { success: "Successful profile update!" } });
 	};
 
 	return (
