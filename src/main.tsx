@@ -9,6 +9,7 @@ import Login from './routes/Login';
 import Signup from './routes/Signup';
 import Schedule from './routes/Schedule';
 import Groups from './routes/Groups';
+import Profile from './routes/Profile';
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "/groups",
     element: <Groups />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
   }
 ]);
 
