@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import API from './api';
+import { getLocal } from "./storage";
 
 // calendar imports
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -69,6 +70,15 @@ type SchedulerForm = {
 	maxResults?: number | null;
 };
 
+interface ProfileData {
+	user_id: string,
+	created_at: string,
+	username: string,
+	pfp_url: string,
+	bio: string,
+	full_name: string,
+}
+
 const Groups = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -113,7 +123,10 @@ const Groups = () => {
 	const [schedulerOutput, setSchedulerOutput] = useState(null);
 	const [schedulerLoading, setSchedulerLoading] = useState(false);
 
+	const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
 	useEffect(() => {
+		setProfileData(getLocal("profileData"));
 		if (location.state && (location.state as any).success) {
 			setSuccess((location.state).success);
 			setForm({
@@ -272,7 +285,11 @@ const Groups = () => {
 		const username = usernameInput.value;
 	
 		// console.log("Adding user", username);
-		const res = await API.addUser({ groupId: selectedGroup?.group_id, username: username });
+		if (!profileData) {
+			console.error("No profile data available");
+			return;
+		}
+		const res = await API.addUser({ inviter: profileData.username, groupId: selectedGroup?.group_id, username: username });
 		// console.log("User added!");
 
 		addUserDialogRef.current?.close();
