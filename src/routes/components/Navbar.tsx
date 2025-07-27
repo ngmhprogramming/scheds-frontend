@@ -146,7 +146,9 @@ const Navbar = () => {
 								(
 									notifs.map(notif => 
 										{
-											const darkText = notif.read ? "text-sm text-gray-500" : "text-sm";
+											const darkText = notif.read 
+												? "text-sm text-gray-500" 
+												: "text-sm";
 											return (
 												<li key={notif.timestamp}>
 													<div className="flex flex-row">
@@ -162,7 +164,7 @@ const Navbar = () => {
 																:   `Error: Unknown notification type`
 															}
 														</div>
-														{ !notif.read && (
+														{ !notif.read && (notif.notif_type == "group invite" || notif.notif_type == "event invite") && (
 															<>
 																<button type="button" onClick={() => handleAcceptNotif(notif)} className="bg-green-500 btn btn-primary">
 																	Accept
