@@ -23,6 +23,22 @@ export const createEvent = async (data: CreateEventData) => {
 	return res;
 };
 
+export const createEvents = async (data: FormData) => {
+	const backendAddress = import.meta.env.VITE_APP_BACKEND_ADDRESS;
+	const res = await axios.post(backendAddress + "schedule/create-events", data,
+		{
+			headers: { 'Content-Type': 'multipart/form-data' },
+			withCredentials: true
+		})
+		.then(res => {
+			return res.data;
+		})
+		.catch(() => {
+			return { error: "API is down!"}
+		});
+	return res;
+};
+
 export const getEvents = async () => {
 	const backendAddress = import.meta.env.VITE_APP_BACKEND_ADDRESS;
 	const res = await axios.get(backendAddress + "schedule/events",

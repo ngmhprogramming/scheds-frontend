@@ -18,6 +18,8 @@
     "axios": "^1.9.0",
     "daisyui": "^5.0.42",
     "date-fns": "^4.1.0",
+    "ical": "^0.8.0",
+    "ical.js": "^2.2.0",
     "jsdom": "^26.1.0",
     "react": "^19.1.0",
     "react-big-calendar": "^1.19.2",
