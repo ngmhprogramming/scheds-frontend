@@ -103,3 +103,19 @@ export const findSlots = async (data : FindSlotsData) => {
 		});
 	return res;
 };
+
+export const getMemberEvents = async (data: GetMembersData) => {
+	const backendAddress = import.meta.env.VITE_APP_BACKEND_ADDRESS;
+	const res = await axios.post(backendAddress + "group/get-member-events", data,
+		{
+			headers: { 'Content-Type': 'multipart/form-data' },
+			withCredentials: true
+		})
+		.then(res => {
+			return res.data;
+		})
+		.catch(() => {
+			return { error: "API is down!"}
+		});
+	return res;
+};

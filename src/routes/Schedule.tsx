@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import API from './api';
 
+import ICAL from "ical.js";
+
 // calendar imports
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format } from 'date-fns/format';
@@ -56,6 +58,7 @@ const Schedule = () => {
 	const [success, setSuccess] = useState<string | null>(null);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [icsForm, setIcsForm] = useState(false);
 
 	useEffect(() => {
 		if (location.state && (location.state as any).success) {
@@ -107,26 +110,66 @@ const Schedule = () => {
 		event.preventDefault();
 		setError("");
 
-		const formData = form;
-		const startDatetime = new Date(formData.start);
-		const endDatetime = new Date(formData.end);
+		if (icsForm) {
+			console.log("ics form");
+			const fileInput = document.getElementById("icsFile") as HTMLInputElement | null;
+			const file = fileInput?.files[0];
+			if (!file) return;
+			const icsText = await file.text();
 
-		if (startDatetime > endDatetime) {
-			setError("Start cannot be before end.");
-			return;
-		}
+			try {
+				const jcalData = ICAL.parse(icsText);
+				const comp = new ICAL.Component(jcalData);
+				const vevents = comp.getAllSubcomponents("vevent");
 
-		if (formData.description.length > 200) {
-			setError("Description can be maximum 200 characters.");
-			return;
-		}
+				const parsedEvents = vevents.map((vevent) => {
+					const event = new ICAL.Event(vevent);
+					return {
+						title: event.summary,
+						start: event.startDate.toJSDate().toISOString(),
+						end: event.endDate.toJSDate().toISOString(),
+						description: event.description,
+					};
+				});
 
-		const res = await API.createEvent(form);
-		console.log(res);
-		if ("error" in res) {
-			setError(res.error);
+				// consider removing this and just sending JSON straight
+				const formData = new FormData();
+				formData.append("events", JSON.stringify(parsedEvents));
+
+				const res = await API.createEvents(formData);
+				if ("error" in res) {
+					setError(res.error);
+				} else {
+					fileInput.value = "";
+					navigate("/schedule", { state: { success: "Successfully uploaded events!" } });
+				}
+			} catch (err) {
+				setError("Failed to parse ICS file.");
+				return;
+			}
 		} else {
-			navigate("/schedule", { state: { success: "Successful event creation!" } });
+
+			const formData = form;
+			const startDatetime = new Date(formData.start);
+			const endDatetime = new Date(formData.end);
+
+			if (startDatetime > endDatetime) {
+				setError("Start cannot be before end.");
+				return;
+			}
+
+			if (formData.description.length > 200) {
+				setError("Description can be maximum 200 characters.");
+				return;
+			}
+
+			const res = await API.createEvent(form);
+			console.log(res);
+			if ("error" in res) {
+				setError(res.error);
+			} else {
+				navigate("/schedule", { state: { success: "Successful event creation!" } });
+			}
 		}
 	};
 
@@ -180,68 +223,118 @@ const Schedule = () => {
 					</div>
 					<form onSubmit={handleSubmit} className="bg-base-100 shadow-md rounded-lg p-6">
 						<h2 className="text-xl font-semibold mb-4">Add New Event</h2>
+
+						<div className="form-control mb-4">
+							<label className="label">
+								<span className="label-text font-medium mb-2">Event Input Method</span>
+							</label>
+							<div className="flex gap-4">
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="radio"
+										name="inputMethod"
+										className="radio radio-primary"
+										checked={!icsForm}
+										onChange={() => setIcsForm(false)}
+									/>
+									<span className="label-text">Manual Input</span>
+								</label>
+
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="radio"
+										name="inputMethod"
+										className="radio radio-primary"
+										checked={icsForm}
+										onChange={() => setIcsForm(true)}
+									/>
+									<span className="label-text">Upload .ics File</span>
+								</label>
+							</div>
+						</div>
+
 						<fieldset className="space-y-4">
-							<div className="form-control max-w-sm">
-								<label htmlFor="title" className="label">
-									<span className="label-text">Event Title</span>
-								</label>
-								<input
-									id="title"
-									name="title"
-									type="text"
-									placeholder="Event title"
-									className="input input-bordered w-full"
-									value={form.title}
-									onChange={handleChange}
-									required
-								/>
-							</div>
+							{icsForm ? (
+								<div className="form-control max-w-sm">
+									<label htmlFor="icsFile" className="label">
+										<span className="label-text">Upload .ics File</span>
+									</label>
+									<input
+										id="icsFile"
+										name="icsFile"
+										type="file"
+										accept=".ics"
+										className="file-input file-input-bordered w-full"
+										required
+									/>
+								</div>
+							) : (
+								<>
+									<div className="form-control max-w-sm">
+										<label htmlFor="title" className="label">
+											<span className="label-text">Event Title</span>
+										</label>
+										<input
+											id="title"
+											name="title"
+											type="text"
+											placeholder="Event title"
+											className="input input-bordered w-full"
+											value={form.title}
+											onChange={handleChange}
+											required
+										/>
+									</div>
 
-							<div className="form-control max-w-sm">
-								<label htmlFor="start" className="label">
-									<span className="label-text">Start Date and Time</span>
-								</label>
-								<input
-									id="start"
-									name="start"
-									type="datetime-local"
-									className="input input-bordered w-full"
-									value={form.start}
-									onChange={handleChange}
-									required
-								/>
-							</div>
+									<div className="form-control max-w-sm">
+										<label htmlFor="start" className="label">
+											<span className="label-text">Start Date and Time</span>
+										</label>
+										<input
+											id="start"
+											name="start"
+											type="datetime-local"
+											className="input input-bordered w-full"
+											value={form.start}
+											onChange={handleChange}
+											required
+										/>
+									</div>
 
-							<div className="form-control max-w-sm">
-								<label htmlFor="end" className="label">
-									<span className="label-text">End Date and Time</span>
-								</label>
-								<input
-									id="end"
-									name="end"
-									type="datetime-local"
-									className="input input-bordered w-full"
-									value={form.end}
-									onChange={handleChange}
-									required
-								/>
-							</div>
+									<div className="form-control max-w-sm">
+										<label htmlFor="end" className="label">
+											<span className="label-text">End Date and Time</span>
+										</label>
+										<input
+											id="end"
+											name="end"
+											type="datetime-local"
+											className="input input-bordered w-full"
+											value={form.end}
+											onChange={handleChange}
+											required
+										/>
+									</div>
 
-							<div className="form-control max-w-lg">
-								<label htmlFor="description" className="label">
-									<span className="label-text">Description</span>
-								</label>
-								<textarea
-									id="description"
-									name="description"
-									className="textarea textarea-bordered w-full"
-									placeholder="Optional description for event"
-									value={form.description}
-									onChange={handleChange}
-								/>
-							</div>
+									<div className="form-control max-w-lg">
+										<label htmlFor="description" className="label">
+											<span className="label-text">Description</span>
+										</label>
+										<textarea
+											id="description"
+											name="description"
+											className="textarea textarea-bordered w-full"
+											placeholder="Optional description for event"
+											value={form.description}
+											onChange={handleChange}
+										/>
+									</div>
+								</>
+							)}
 
-							<button type="submit" className="btn btn-primary">Add Event</button>
+							<button type="submit" className="btn btn-primary">
+								Add Event
+							</button>
 
 							{error && (
 								<div role="alert" className="alert alert-error">
