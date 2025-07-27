@@ -87,6 +87,7 @@ const Schedule = () => {
 			setEvents(parsed);
 			setLoading(false);
 		}
+		setLoading(false);
 	};
 
 	useEffect(() => {

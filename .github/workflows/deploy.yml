@@ -1,4 +1,4 @@
-name: DigitalOcean
+name: CI-CD to production
 
 # Controls when the workflow will run
 on:
@@ -17,7 +17,23 @@ env:
   IMAGE_NAME: "scheds-frontend"
 
 jobs:
-  deploy:
+  ci:
+    name: Run Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Run vitest
+        run: npm run test
+  cd:
+    name: Deploy to DigitalOcean
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Digital Ocean droplet via SSH action
@@ -28,12 +44,15 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            # cd to directory and update
+            set -e
+            echo "▶ Changing to project directory"
             cd scheds-frontend
+            echo "▶ Pulling latest changes"
             git pull
-            # Stop running container
+            echo "▶ Shutting down existing container"
             docker compose -f docker-compose-prod.yml down -v
-            # Build new container
+            echo "▶ Building new container"
             docker compose -f docker-compose-prod.yml build --force-rm --no-cache --compress
-            # Run a new container from a new image
+            echo "▶ Starting new container"
             docker compose -f docker-compose-prod.yml up -d
+            echo "▶ Deployment complete"
