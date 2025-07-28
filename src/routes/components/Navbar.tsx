@@ -15,15 +15,15 @@ interface ProfileData {
 
 export interface Notif {
 	notif_id: string;
-    username: string;
-    icon_url: string;
-    notif_type: string;
-    group_name: string;
-    event_name: string;
-    inviter_name: string;
-    read: boolean;
-    accepted: boolean;
-    timestamp: string;
+	username: string;
+	icon_url: string;
+	notif_type: string;
+	group_name: string;
+	event_name: string;
+	inviter_name: string;
+	read: boolean;
+	accepted: boolean;
+	timestamp: string;
 	event_time: string;
 }
 
@@ -135,19 +135,18 @@ const Navbar = () => {
 								</div>
 							</label>
 							<ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-100">
-								{ notifsLoading && 
-								(
-									<div className="flex justify-center items-center w-full py-12">
-										<span className="loading loading-bars loading-lg"></span>
-									</div>
-								) 
+								{notifsLoading &&
+									(
+										<div className="flex justify-center items-center w-full py-12">
+											<span className="loading loading-bars loading-lg"></span>
+										</div>
+									)
 								}
-								{ !notifsLoading && !notifsError && 
-								(
-									notifs.map(notif => 
-										{
-											const darkText = notif.read 
-												? "text-sm text-gray-500" 
+								{!notifsLoading && !notifsError &&
+									(
+										notifs.map(notif => {
+											const darkText = notif.read
+												? "text-sm text-gray-500"
 												: "text-sm";
 											return (
 												<li key={notif.timestamp}>
@@ -156,15 +155,15 @@ const Navbar = () => {
 														<div className={darkText}>
 															{
 																(notif.notif_type == "group invite")
-																?	`${notif.group_name}: ${notif.inviter_name} invited you to join ${notif.group_name}.`
-																: (notif.notif_type == "event invite")
-																?	`${notif.event_name}: ${notif.inviter_name} invited you to join the event ${notif.event_name}.`
-																: (notif.notif_type == "event reminder")
-																?	`${notif.event_name}: ${notif.event_name} is occurring soon! Don't forget about it!`
-																:   `Error: Unknown notification type`
+																	? `${notif.group_name}: ${notif.inviter_name} invited you to join ${notif.group_name}.`
+																	: (notif.notif_type == "event invite")
+																		? `${notif.event_name}: ${notif.inviter_name} invited you to join the event ${notif.event_name}.`
+																		: (notif.notif_type == "event reminder")
+																			? `${notif.event_name}: ${notif.event_name} is occurring soon! Don't forget about it!`
+																			: `Error: Unknown notification type`
 															}
 														</div>
-														{ !notif.read && (notif.notif_type == "group invite" || notif.notif_type == "event invite") && (
+														{!notif.read && (notif.notif_type == "group invite" || notif.notif_type == "event invite") && (
 															<>
 																<button type="button" onClick={() => handleAcceptNotif(notif)} className="bg-green-500 btn btn-primary">
 																	Accept
@@ -173,15 +172,15 @@ const Navbar = () => {
 																	Reject
 																</button>
 															</>
-														) }
+														)}
 													</div>
 												</li>
 											);
-									}
-								)
-								)
-								} 
-								{ !notifsLoading && notifsError && (
+										}
+										)
+									)
+								}
+								{!notifsLoading && notifsError && (
 									<div role="alert" className="alert alert-error">
 										<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
 											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -213,7 +212,7 @@ const Navbar = () => {
 									</span>
 								</li>
 								<li><a onClick={() => navigate("/profile")}>Profile</a></li>
-								<li><a>Settings</a></li>
+								{/* <li><a>Settings</a></li> */}
 								<li><a onClick={handleLogout}>Logout</a></li>
 							</ul>
 						</div>
@@ -241,6 +240,7 @@ const Navbar = () => {
 						{profileData && (
 							<>
 								<li><a href="/schedule">Schedule</a></li>
+								<li><a href="/groups">Groups</a></li>
 							</>
 						)}
 						{!profileData && (
