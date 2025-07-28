@@ -5,6 +5,7 @@ export interface CreateGroupData {
 }
 
 export interface AddUserData {
+	inviter: string,
 	groupId: string | undefined,
 	username: string,
 }

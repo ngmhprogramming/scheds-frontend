@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from '../api';
 import { getLocal, removeLocal } from "../storage";
+import { parseISO } from "date-fns";
 
 interface ProfileData {
 	user_id: string,
@@ -12,14 +13,60 @@ interface ProfileData {
 	full_name: string,
 }
 
+export interface Notif {
+	notif_id: string;
+    username: string;
+    icon_url: string;
+    notif_type: string;
+    group_name: string;
+    event_name: string;
+    inviter_name: string;
+    read: boolean;
+    accepted: boolean;
+    timestamp: string;
+	event_time: string;
+}
+
 const Navbar = () => {
 	const navigate = useNavigate();
 
 	const [profileData, setProfileData] = useState<ProfileData | null>(null);
+	const [notifsLoading, setNotifsLoading] = useState(false);
+	const [notifsError, setNotifsError] = useState("");
+	const [notifs, setNotifs] = useState<Notif[]>([]);
 
 	useEffect(() => {
 		setProfileData(getLocal("profileData"));
 	}, []);
+
+	const fetchNotifs = async () => {
+		setNotifsLoading(true);
+		setNotifsError("");
+		if (profileData === null) {
+			setNotifsError("No profile data");
+			return;
+		}
+		const res = await API.getNotifs(profileData);
+		if ("error" in res) {
+			setNotifsError(res.error);
+		} else {
+			const parsed = res.data.map((notif: Notif) => ({
+				notif_id: notif.notif_id,
+				username: notif.username,
+				icon_url: notif.icon_url,
+				notif_type: notif.notif_type,
+				group_name: notif.group_name,
+				event_name: notif.event_name,
+				inviter_name: notif.inviter_name,
+				read: notif.read,
+				accepted: notif.accepted,
+				timestamp: parseISO(notif.timestamp),
+				event_time: parseISO(notif.event_time),
+			}));
+			setNotifs(parsed);
+		}
+		setNotifsLoading(false);
+	};
 
 	const handleLogout = async () => {
 		await API.logout();
@@ -27,6 +74,20 @@ const Navbar = () => {
 		setProfileData(null);
 		navigate("/", { state: { success: "Successful logout!" } });
 	};
+
+	const handleNotifClick = async () => {
+		fetchNotifs();
+		console.log(notifs);
+		console.log("working");
+	}
+
+	const handleAcceptNotif = async (notif: Notif) => {
+		const res = await API.acceptNotif(notif);
+	}
+
+	const handleRejectNotif = async (notif: Notif) => {
+		const res = await API.rejectNotif(notif);
+	}
 
 	return (
 		<nav>
@@ -56,23 +117,81 @@ const Navbar = () => {
 				{profileData && (
 					<div className="flex items-center gap-2 ml-2">
 						{/* Notifications */}
-						<button className="btn btn-ghost btn-circle">
-							<div className="indicator">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									className="h-6 w-6"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-								>
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 9v5.159c0 .538-.214 1.055-.595 1.436L6 17h5m4 0v1a3 3 0 11-6 0v-1m6 0H9" />
-								</svg>
-								{/* Unread notifications icon */}
-								{/* TODO: Conditional render based on notification status */}
-								<span className="badge badge-xs badge-primary indicator-item"></span>
-							</div>
-						</button>
-
+						<div className="dropdown dropdown-end" onClick={handleNotifClick}>
+							<label tabIndex={0} className="btn btn-ghost btn-circle">
+								<div className="indicator">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										className="h-6 w-6"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+									>
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C8.67 6.165 8 7.388 8 9v5.159c0 .538-.214 1.055-.595 1.436L6 17h5m4 0v1a3 3 0 11-6 0v-1m6 0H9" />
+									</svg>
+									{/* Unread notifications icon */}
+									{/* TODO: Conditional render based on notification status */}
+									<span className="badge badge-xs badge-primary indicator-item"></span>
+								</div>
+							</label>
+							<ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-100">
+								{ notifsLoading && 
+								(
+									<div className="flex justify-center items-center w-full py-12">
+										<span className="loading loading-bars loading-lg"></span>
+									</div>
+								) 
+								}
+								{ !notifsLoading && !notifsError && 
+								(
+									notifs.map(notif => 
+										{
+											const darkText = notif.read 
+												? "text-sm text-gray-500" 
+												: "text-sm";
+											return (
+												<li key={notif.timestamp}>
+													<div className="flex flex-row">
+														<img src={notif.icon_url} alt="Notification icon" className="w-15 h-15 rounded-full mr-2" />
+														<div className={darkText}>
+															{
+																(notif.notif_type == "group invite")
+																?	`${notif.group_name}: ${notif.inviter_name} invited you to join ${notif.group_name}.`
+																: (notif.notif_type == "event invite")
+																?	`${notif.event_name}: ${notif.inviter_name} invited you to join the event ${notif.event_name}.`
+																: (notif.notif_type == "event reminder")
+																?	`${notif.event_name}: ${notif.event_name} is occurring soon! Don't forget about it!`
+																:   `Error: Unknown notification type`
+															}
+														</div>
+														{ !notif.read && (notif.notif_type == "group invite" || notif.notif_type == "event invite") && (
+															<>
+																<button type="button" onClick={() => handleAcceptNotif(notif)} className="bg-green-500 btn btn-primary">
+																	Accept
+																</button>
+																<button type="button" onClick={() => handleRejectNotif(notif)} className="bg-red-500 btn btn-primary">
+																	Reject
+																</button>
+															</>
+														) }
+													</div>
+												</li>
+											);
+									}
+								)
+								)
+								} 
+								{ !notifsLoading && notifsError && (
+									<div role="alert" className="alert alert-error">
+										<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+										</svg>
+										<span>{notifsError}</span>
+									</div>
+								)
+								}
+							</ul>
+						</div>
 						{/* Profile picture dropdown */}
 						<div className="dropdown dropdown-end">
 							<label tabIndex={0} className="btn btn-ghost btn-circle avatar">
